@@ -41,10 +41,15 @@ cd installer/
 Edit the following parameters in inventory
 
 vim inventory 
-postgres_data_dir=/var/lib/pgdocker 
-awx_alternate_dns_servers="8.8.8.8"
+
+postgres_data_dir=/var/lib/pgdocker
+
+awx_alternate_dns_servers="8.8.8.8
+"
 awx_official=true 
+
 project_data_dir=/var/lib/awx/projects 
+
 Now deploying AWX via Docker
 ```
 ansible-playbook -i inventory install.yml -vv
