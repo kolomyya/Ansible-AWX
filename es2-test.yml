@@ -1,0 +1,47 @@
+---
+  - name: Provision an EC2 Instance
+    hosts: localhost
+    gather_facts: False
+    tags: provisioning
+    # Necessary Variables for creating/provisioning the EC2 Instance
+    vars:
+      instance_type: t2.micro
+      security_group: ansible-webserver # Change the security group name here
+      image: ami-a042f4d8 # This is an AMI i created myself
+      keypair: my-key # This is one of my keys that i already have in AWS
+      region: eu-west-2 # Change the Region
+      count: 1
+   #  # Task that will be used to Launch/Create an EC2 Instance
+    tasks:
+      - name: Create a security group
+        local_action:
+          module: ec2_group
+          name: "{{ security_group }}"
+          description: Security Group for webserver Servers
+          region: "{{ region }}"
+          rules:
+            - proto: tcp
+              from_port: 22
+              to_port: 22
+              cidr_ip: 0.0.0.0/0
+            - proto: tcp
+              from_port: 80
+              to_port: 80
+              cidr_ip: 0.0.0.0/0
+            - proto: tcp
+              from_port: 443
+              to_port: 443
+              cidr_ip: 0.0.0.0/0
+          rules_egress:
+            - proto: all
+              cidr_ip: 0.0.0.0/0
+      - name: Launch the new EC2 Instance
+        local_action: ec2
+                      group={{ security_group }}
+                      instance_type={{ instance_type}}
+                      image={{ image }}
+                      wait=true
+                      region={{ region }}
+                      keypair={{ keypair }}
+                      count={{count}}
+        register: ec2
