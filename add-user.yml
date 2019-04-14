@@ -1,0 +1,24 @@
+---
+  - name: Add privileged user to Ubuntu-Servers
+    hosts: "{{ host }}"
+    tasks:
+      - name: Create user
+        user:
+          name: "{{ user_name }}"
+          append: yes
+          state: present
+          createhome: yes
+          shell: /bin/bash
+
+      - name: allow "user" to have passwordless sudo
+        lineinfile:
+          dest: /etc/sudoers
+          line: "{{ user_name }} ALL=(ALL) NOPASSWD: ALL"
+          validate: "visudo -cf %s"
+
+      - name: set up authorized keys for the "user"
+        authorized_key:
+          user: "{{ user_name }}"
+          key: "{{ item }}"
+          with_file:
+            - ~/.ssh/id_rsa.pub
